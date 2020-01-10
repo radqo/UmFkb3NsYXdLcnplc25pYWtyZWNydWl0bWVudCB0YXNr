@@ -1,0 +1,10 @@
+{
+    "api" :{
+        "port" : "50300",
+        "cacheMinutes": 10  
+    },
+    "weather" :{
+        "apikey" : "36e90eed79cfead55ba8d20a826d7982",
+        "lang" : "pl"
+    }
+}
