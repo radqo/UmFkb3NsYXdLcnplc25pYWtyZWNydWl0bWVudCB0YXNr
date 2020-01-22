@@ -4,6 +4,8 @@ import (
 	"log"
 	"net/http"
 	"time"
+	"runtime"
+	"path"
 	"github.com/radqo/UmFkb3NsYXdLcnplc25pYWtyZWNydWl0bWVudCB0YXNr/tool"
 	"github.com/radqo/UmFkb3NsYXdLcnplc25pYWtyZWNydWl0bWVudCB0YXNr/model"
 	"github.com/radqo/UmFkb3NsYXdLcnplc25pYWtyZWNydWl0bWVudCB0YXNr/adapter/openweather"
@@ -18,7 +20,11 @@ func main() {
 
 	appConf := &model.AppConfiguration{}
 
-	err := tools.Read("../../config/config.json", appConf)
+	_, filename, _, _ := runtime.Caller(0)
+
+	confPath := path.Join(path.Dir(filename),"../../config")
+
+	err := tools.Read(path.Join(confPath,"config.json"), appConf)
 
 	if err != nil {
 		log.Fatal(err)
@@ -26,7 +32,7 @@ func main() {
 
 	clientConf := &openweather.Configuration{}
 
-	err = tools.Read("../../config/openweatherconfig.json", clientConf)
+	err = tools.Read(path.Join(confPath, "openweatherconfig.json"), clientConf)
 
 	if err != nil {
 		log.Fatal(err)
