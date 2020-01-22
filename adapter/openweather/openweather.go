@@ -1,4 +1,4 @@
-package main
+package openweather
 
 import (
 	"encoding/json"
@@ -6,7 +6,18 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+
+	"github.com/radqo/UmFkb3NsYXdLcnplc25pYWtyZWNydWl0bWVudCB0YXNr/model"
+	"github.com/radqo/UmFkb3NsYXdLcnplc25pYWtyZWNydWl0bWVudCB0YXNr/abstraction"
 )
+
+// Configuration - open weather client configuration
+type Configuration struct {
+	URL    string `json:"url"`
+	APIKey string `json:"apikey"`
+	Lang   string `json:"lang"`
+	Units  string `json:"units"`
+}
 
 type owmWeather struct {
 	Main        string
@@ -53,54 +64,39 @@ type httpClient interface {
 }
 
 type owmService struct {
-	client           httpClient
-	counter          int
-	incrementChannel chan string
-	conf             weatherConfiguration
+	client  httpClient
+	counter int
+	conf    Configuration
 }
 
-func newOwmService(c weatherConfiguration, client httpClient) *owmService {
-	s := &owmService{}
-	s.conf = c
-	s.client = client
-	s.counter = 0
-	s.incrementChannel = make(chan string)
-	go s.increment()
-	return s
+//New - creates new instance of client
+func New(c Configuration, client httpClient) abstraction.CityWeatherGetter {
+	return &owmService{ conf : c, client: client }
 }
 
-func (s *owmService) increment() {
-	for {
-		x := <-s.incrementChannel
-		s.counter = s.counter + 1
-		log.Printf("%v %s\n", s.counter, x)
-	}
-}
-
-func (s *owmService) getOpenWeather(city string) (owmResponse, error) {
+func (s *owmService) GetWeather(city string) (*model.CityWeather, error) {
+	log.Println("Call for city: "+city)
 
 	url := fmt.Sprintf("%s?q=%s&lang=%s&appid=%s&units=%s", s.conf.URL, city, s.conf.Lang, s.conf.APIKey, s.conf.Units)
 
 	response, err := s.client.Get(url)
 
-	s.incrementChannel <- city
-
 	if err != nil {
-		return owmResponse{}, err
+		return nil, err
 	}
 
 	defer response.Body.Close()
 
 	if response.StatusCode != http.StatusOK {
 		e := owmError{Code: response.Status}
-		return owmResponse{}, e
+		return nil, e
 	}
 
 	b, err := ioutil.ReadAll(response.Body)
 
 	if err != nil {
 		log.Printf("Error reading body [%s]\n", err.Error())
-		return owmResponse{}, owmError{Code: "500"}
+		return nil, owmError{Code: "500"}
 	}
 
 	resp := owmResponse{}
@@ -108,8 +104,29 @@ func (s *owmService) getOpenWeather(city string) (owmResponse, error) {
 
 	if err != nil {
 		log.Printf("Error deserializing body [%s]\n", err.Error())
-		return owmResponse{}, owmError{Code: "500"}
+		return nil, owmError{Code: "500"}
 	}
 
-	return resp, nil
+	return convert(resp), nil
+}
+
+func convert(r owmResponse) *model.CityWeather {
+	cw := &model.CityWeather{
+		Name:        r.Name,
+		Description: r.Weather[0].Description,
+		Temperature: model.Temperature{
+			Current:    r.Main.Temp,
+			Minimal:    r.Main.TempMin,
+			Maximal:    r.Main.TempMax,
+			FeellsLike: r.Main.FeelsLike,
+		},
+		Pressure: r.Main.Pressure,
+		Humidity: r.Main.Humidity,
+		Wind: model.Wind{
+			Speed: r.Wind.Speed,
+			Deg:   r.Wind.Deg,
+		},
+		Cloudiness: r.Clouds.All,
+	}
+	return cw
 }

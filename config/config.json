@@ -1,0 +1,5 @@
+{
+    "port" : "50300",
+    "cacheTimeoutInSeconds": 600,
+    "clientTimeoutInSeconds": 15
+}

@@ -1,10 +1,12 @@
-package main
+package inmemory
 
 import (
 	"fmt"
 	"log"
 	"sync"
 	"time"
+	"errors"
+	"github.com/radqo/UmFkb3NsYXdLcnplc25pYWtyZWNydWl0bWVudCB0YXNr/abstraction"
 )
 
 type cacheItem struct {
@@ -14,27 +16,17 @@ type cacheItem struct {
 	ready     chan struct{}
 }
 
-type cache struct {
+type cacheService struct {
 	items      map[string]*cacheItem
 	timeoutSec float64
 	sync.Mutex
 }
 
-type getFunc func(key string) (interface{}, error)
-
-type getError struct {
-	Message string
+func New(timeout int) abstraction.CacheGetter {
+	return &cacheService{items: make(map[string]*cacheItem), timeoutSec: float64(timeout)}
 }
 
-func (e getError) Error() string {
-	return e.Message
-}
-
-func newCache(timeout int) *cache {
-	return &cache{items: make(map[string]*cacheItem), timeoutSec: float64(timeout)}
-}
-
-func (c *cache) Get(key string, f getFunc) (value interface{}, err error) {
+func (c *cacheService) Get(key string, f abstraction.GetFunc) (value interface{}, err error) {
 	c.Lock()
 	item, ok := c.items[key]
 	if !ok || (ok && c.timeoutSec < time.Since(item.timestamp).Seconds()) {
@@ -48,7 +40,7 @@ func (c *cache) Get(key string, f getFunc) (value interface{}, err error) {
 				log.Println("panic in getFunc")
 				log.Println(fmt.Sprintf("Recovered in Get from cache for key %s (%s)", key, r))
 				item.value = nil
-				item.err = getError{Message: "500"}
+				item.err = errors.New("Internal server error")
 				value = item.value
 				err = item.err
 				close(item.ready)
