@@ -7,8 +7,8 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/radqo/UmFkb3NsYXdLcnplc25pYWtyZWNydWl0bWVudCB0YXNr/model"
 	"github.com/radqo/UmFkb3NsYXdLcnplc25pYWtyZWNydWl0bWVudCB0YXNr/abstraction"
+	"github.com/radqo/UmFkb3NsYXdLcnplc25pYWtyZWNydWl0bWVudCB0YXNr/model"
 )
 
 // Configuration - open weather client configuration
@@ -71,11 +71,11 @@ type owmService struct {
 
 //New - creates new instance of client
 func New(c Configuration, client httpClient) abstraction.CityWeatherGetter {
-	return &owmService{ conf : c, client: client }
+	return &owmService{conf: c, client: client}
 }
 
 func (s *owmService) GetWeather(city string) (*model.CityWeather, error) {
-	log.Println("Call for city: "+city)
+	log.Println("Call for city: " + city)
 
 	url := fmt.Sprintf("%s?q=%s&lang=%s&appid=%s&units=%s", s.conf.URL, city, s.conf.Lang, s.conf.APIKey, s.conf.Units)
 

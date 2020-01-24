@@ -5,11 +5,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gorilla/mux"
+	"github.com/radqo/UmFkb3NsYXdLcnplc25pYWtyZWNydWl0bWVudCB0YXNr/abstraction"
 	"log"
 	"net/http"
 	"sync"
 	"time"
-	"github.com/radqo/UmFkb3NsYXdLcnplc25pYWtyZWNydWl0bWVudCB0YXNr/abstraction"
 )
 
 type server struct {
@@ -17,7 +17,6 @@ type server struct {
 	httpServer *http.Server
 	waitGroup  sync.WaitGroup
 }
-
 
 // New - creates new instance of server
 func New(provider abstraction.WeatherProvider) abstraction.Server {
@@ -50,7 +49,6 @@ func (s *server) Shutdown() {
 	defer cancel()
 	s.httpServer.Shutdown(ctx)
 }
-
 
 func (s *server) About(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)

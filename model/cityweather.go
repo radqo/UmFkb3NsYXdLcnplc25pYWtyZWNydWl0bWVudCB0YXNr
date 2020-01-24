@@ -36,4 +36,3 @@ type WeatherError struct {
 	City         string
 	ErrorMessage string
 }
-

@@ -1,18 +1,18 @@
 package main
 
 import (
-	"log"
-	"net/http"
-	"time"
-	"runtime"
-	"path"
-	"github.com/radqo/UmFkb3NsYXdLcnplc25pYWtyZWNydWl0bWVudCB0YXNr/tool"
-	"github.com/radqo/UmFkb3NsYXdLcnplc25pYWtyZWNydWl0bWVudCB0YXNr/model"
 	"github.com/radqo/UmFkb3NsYXdLcnplc25pYWtyZWNydWl0bWVudCB0YXNr/adapter/openweather"
-	"github.com/radqo/UmFkb3NsYXdLcnplc25pYWtyZWNydWl0bWVudCB0YXNr/service/server/rest"
-	"github.com/radqo/UmFkb3NsYXdLcnplc25pYWtyZWNydWl0bWVudCB0YXNr/service/weatherprovider"
+	"github.com/radqo/UmFkb3NsYXdLcnplc25pYWtyZWNydWl0bWVudCB0YXNr/model"
 	cache "github.com/radqo/UmFkb3NsYXdLcnplc25pYWtyZWNydWl0bWVudCB0YXNr/service/cache/inmemory"
 	"github.com/radqo/UmFkb3NsYXdLcnplc25pYWtyZWNydWl0bWVudCB0YXNr/service/cityweathergetter/cached"
+	"github.com/radqo/UmFkb3NsYXdLcnplc25pYWtyZWNydWl0bWVudCB0YXNr/service/server/rest"
+	"github.com/radqo/UmFkb3NsYXdLcnplc25pYWtyZWNydWl0bWVudCB0YXNr/service/weatherprovider"
+	"github.com/radqo/UmFkb3NsYXdLcnplc25pYWtyZWNydWl0bWVudCB0YXNr/tool"
+	"log"
+	"net/http"
+	"path"
+	"runtime"
+	"time"
 )
 
 func main() {
@@ -22,9 +22,9 @@ func main() {
 
 	_, filename, _, _ := runtime.Caller(0)
 
-	confPath := path.Join(path.Dir(filename),"../../config")
+	confPath := path.Join(path.Dir(filename), "../../config")
 
-	err := tools.Read(path.Join(confPath,"config.json"), appConf)
+	err := tools.Read(path.Join(confPath, "config.json"), appConf)
 
 	if err != nil {
 		log.Fatal(err)
@@ -37,7 +37,6 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
 
 	client := &http.Client{
 		Timeout: time.Duration(appConf.ClientTimeoutInSeconds) * time.Second,
@@ -56,5 +55,3 @@ func main() {
 	s.Run(appConf.Port)
 
 }
-
-

@@ -1,9 +1,9 @@
 package weatherprovider
 
 import (
-	"strings"
-	"github.com/radqo/UmFkb3NsYXdLcnplc25pYWtyZWNydWl0bWVudCB0YXNr/model"
 	"github.com/radqo/UmFkb3NsYXdLcnplc25pYWtyZWNydWl0bWVudCB0YXNr/abstraction"
+	"github.com/radqo/UmFkb3NsYXdLcnplc25pYWtyZWNydWl0bWVudCB0YXNr/model"
+	"strings"
 )
 
 type service struct {
@@ -15,7 +15,7 @@ func New(getter abstraction.CityWeatherGetter) abstraction.WeatherProvider {
 	return &service{getter: getter}
 }
 
-func (s *service) GetWeather(cities []string) (model.Weather) {
+func (s *service) GetWeather(cities []string) model.Weather {
 
 	result := model.Weather{
 		Errors: []model.WeatherError{},
@@ -57,5 +57,3 @@ func (s *service) goGetWeatherForCity(city string, c chan chanResult) {
 	m, err := s.getter.GetWeather(city)
 	c <- chanResult{Model: m, Error: err, City: city}
 }
-
-

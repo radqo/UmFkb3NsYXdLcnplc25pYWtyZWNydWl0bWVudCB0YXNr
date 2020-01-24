@@ -3,7 +3,8 @@ package abstraction
 // GetFunc - function creates new value for key
 type GetFunc func(key string) (interface{}, error)
 
-// CacheGetter - cache interface
-type CacheGetter interface {
-	Get(key string, f GetFunc) (value interface{}, err error)
+// CacheOperator - cache interface
+type CacheOperator interface {
+	Get(key string) (value interface{}, found bool)
+	Set(key string, value interface{})
 }
