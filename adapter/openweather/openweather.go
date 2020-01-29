@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"errors"
 
 	"github.com/radqo/UmFkb3NsYXdLcnplc25pYWtyZWNydWl0bWVudCB0YXNr/abstraction"
 	"github.com/radqo/UmFkb3NsYXdLcnplc25pYWtyZWNydWl0bWVudCB0YXNr/model"
@@ -74,8 +75,16 @@ func New(c Configuration, client httpClient) abstraction.CityWeatherGetter {
 	return &owmService{conf: c, client: client}
 }
 
-func (s *owmService) GetWeather(city string) (*model.CityWeather, error) {
+func (s *owmService) GetWeather(city string) (m *model.CityWeather, err error) {
 	log.Println("Call for city: " + city)
+
+	defer func() {
+		if r:=recover();r!=nil{
+			log.Println(r)
+			err = errors.New("Internal server error")
+			m = nil
+		}
+	}()
 
 	url := fmt.Sprintf("%s?q=%s&lang=%s&appid=%s&units=%s", s.conf.URL, city, s.conf.Lang, s.conf.APIKey, s.conf.Units)
 
